@@ -30,13 +30,7 @@ jobs:
         version: '298.0.0'
         service_account_key: ${{ secrets.RUN_SA_KEY }}
         project_id: ${{ secrets.RUN_PROJECT }}
-        
-    #uninstall Cloud Beta SDK Commands for Cloud Run    
-    - name: Unnstall_Cloud_Beta_Sdk
-      id: uninstall_cloud_beta_sdk
-      run: |-
-        gcloud components remove beta --quiet        
-        
+
     #install Cloud Beta SDK Commands for Cloud Run    
     - name: Install_Cloud_Beta_Sdk
       id: install_cloud_beta_sdk
@@ -53,12 +47,7 @@ jobs:
       id: check_network_exists_vpcaccess
       run: |-
         gcloud compute networks vpc-access connectors describe vpcaccess --region "$RUN_REGION"    
-
-   # - name: Output_Results
-   #   id: output_results
-   #   run: |-
-   #     echo ${{ check_network_exists_vpcaccess.outputs }}
-    
+   
     # Enable VPC API Access
     - name: Enable_VPC_API_Access
       id: enable_vpc_api_access
