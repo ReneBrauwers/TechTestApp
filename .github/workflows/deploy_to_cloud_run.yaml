@@ -1,6 +1,6 @@
-# Basic CI workflow which will build and deploy a container into Google Cloud Run
+# Build and configures Google Cloud Services (Cloud SQL and Cloud Run) and deploys the TechTestApp.
 
-name: CI
+name: CICD
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -10,7 +10,7 @@ on:
 
 #Set up environment variables
 env:
-  PROJECT_ID: ${{ secrets.RUN_PROJECT }}           
+  PROJECT_ID: ${{ secrets.RUN_PROJECT }}
   RUN_REGION: asia-northeast1
   SOLUTION_NAME: techtestapp
         
@@ -47,7 +47,12 @@ jobs:
       id: check_network_exists_vpcaccess
       run: |-
         gcloud compute networks vpc-access connectors describe vpcaccess --region "$RUN_REGION"    
-   
+
+   # - name: Output_Results
+   #   id: output_results
+   #   run: |-
+   #     echo ${{ check_network_exists_vpcaccess.outputs }}
+    
     # Enable VPC API Access
     - name: Enable_VPC_API_Access
       id: enable_vpc_api_access
@@ -55,13 +60,13 @@ jobs:
         gcloud services enable vpcaccess.googleapis.com
  
     # Create VPC Connector
-    - name: Create_VPC_Connector      
+    - name: Create_VPC_Connector
       id: create_vpc_connector
       run: |-
         gcloud compute networks vpc-access connectors create vpcaccess \
           --network default \
           --region "$RUN_REGION" \
-          --range 10.8.0.0/28       
+          --range 10.8.0.0/28
       continue-on-error: true
 
      # Build the Docker image
@@ -88,8 +93,6 @@ jobs:
           --update-env-vars VTT_DBHOST=${{ secrets.RUN_SQL_HOST }},VTT_DBUSER=${{ secrets.RUN_SQL_USER }},VTT_DBPASSWORD=${{ secrets.RUN_SQL_PASSWORD }},VTT_DBNAME=${{ secrets.RUN_SQL_DB }},VTT_DBPORT=${{ secrets.RUN_SQL_PORT }},VTT_LISTENPORT=80,VTT_LISTENHOST=0.0.0.0 \
           --platform "managed" \
           --allow-unauthenticated
-           
-
 
     # Update Cloud Run with VPC Settings
     - name: Update_Cloud_Run
@@ -98,5 +101,5 @@ jobs:
         gcloud beta run services update $SOLUTION_NAME \
           --vpc-connector vpcaccess \
           --platform managed \
-          --region "$RUN_REGION" \           
+          --region "$RUN_REGION" \
           --quiet
