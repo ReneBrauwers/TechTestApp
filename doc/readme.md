@@ -1,20 +1,18 @@
 # TechTestApp
-
-[![Build Status][circleci-badge]][circleci]
+[![Build Status][git-cicd-badge]][gitworkflow]
 [![Release][release-badge]][release]
 [![GoReportCard][report-badge]][report]
 [![License][license-badge]][license]
 
-[circleci-badge]: https://circleci.com/gh/servian/TechTestApp.svg?style=shield&circle-token=8dfd03c6c2a5dc5555e2f1a84c36e33bc58ad0aa
-[circleci]: https://circleci.com/gh/servian/TechTestApp
-[release-badge]: http://img.shields.io/github/release/servian/TechTestApp/all.svg?style=flat
-[release]:https://github.com/servian/TechTestApp/releases
-[report-badge]: https://goreportcard.com/badge/github.com/servian/TechTestApp
-[report]: https://goreportcard.com/report/github.com/servian/TechTestApp
-[license-badge]: https://img.shields.io/github/license/servian/TechTestApp.svg?style=flat
-[license]: https://github.com/servian/TechTestApp/license
+[git-cicd-badge]: https://github.com/ReneBrauwers/TechTestApp/workflows/CICD/badge.svg
+[gitworkflow]: https://github.com/ReneBrauwers/TechTestApp/actions?query=workflow%3ACICD
+[release-badge]: http://img.shields.io/github/release/ReneBrauwers/TechTestApp/all.svg?style=flat
+[release]:https://github.com/ReneBrauwers/TechTestApp/releases
+[report-badge]: https://goreportcard.com/badge/github.com/ReneBrauwers/TechTestApp
+[report]: https://goreportcard.com/report/github.com/ReneBrauwers/TechTestApp
+[license-badge]: https://img.shields.io/github/license/ReneBrauwers/TechTestApp.svg?style=flat
+[license]: https://github.com/ReneBrauwers/TechTestApp/license
 
-The Servian techtest app is a golang application used for testing candidates applying to work with Servian.
 
 ## Documentation structure
 
@@ -29,13 +27,22 @@ Naming convention: `####-<decision title>` where the first 4 digits are iterated
 
 ## Tech Test Application
 
-Single page application designed to be ran inside a container or on a vm (IaaS) with a postgres database to store data.
+Single page application designed to run effortlessly in a container or on a vm (IaaS). The application relies on a postgres database to store data.
 
 It is completely self contained, and should not require any additional dependencies to run.
 
-## Install
+## Testing live version
+In order to view the last deployed version ![CICD](https://github.com/ReneBrauwers/TechTestApp/workflows/CICD/badge.svg) please go to the last releases pages which
+should contain a link to the running application. 
 
-1. Download latest binary from release
+## Installation
+
+### Local using binary
+Please refer to the original git repo from servian. The binary can be downloaded from the [release folder](https://github.com/servian/TechTestApp/releases)
+
+### Docker Container
+
+1. Ensure you have installed 
 2. unzip into desired location
 3. and you should be good to go
 
