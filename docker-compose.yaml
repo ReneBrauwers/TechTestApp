@@ -29,7 +29,7 @@ services:
       - VTT_DBHOST=postgresdb                       
       - VTT_DBUSER=postgres
       - VTT_DBPASSWORD=postgres
-      - VTT_DBNAME=techtestlab
+      - VTT_DBNAME=postgres
       - VTT_DBPORT=5432
       - VTT_LISTENPORT=81
       - VTT_LISTENHOST=0.0.0.0   

@@ -22,8 +22,4 @@ This is a fork of the Servian techtest application.The application is a simple G
 The forked solution itself will deploy all artefacts into [Google Cloud](https://cloud.google.com/) leveraging [Google Cloud SQL](https://cloud.google.com/sql) for PostegreSQL and [Google Cloud Run](https://cloud.google.com/run).
 
 
-More details about the application can be found in the [document folder](doc/readme.md)
-
-## Found an issue?
-
-If you've found an issue with the application, the documentation, or anything else, we are happy to take contributions. Please raise an issue in the [github repository](https://github.com/Servian/TechTestApp/issues) and read through the contribution rules found the [CONTRIBUTING.md](CONTRIBUTING.md) file for the details.
+More details about the application can be found in the [document folder](doc/readme.md).

@@ -17,7 +17,7 @@
 ## Documentation structure
 
 [readme.md](readme.md) - this file
-[config.md](config.md) - how to configure the application
+[gitaction-config.md](git-action-config.md) - how to configure git actions (secrets used for deployment and service tasks)
 
 ### Architecture Design Records (ADR)
 
@@ -31,49 +31,97 @@ Single page application designed to run effortlessly in a container or on a vm (
 
 It is completely self contained, and should not require any additional dependencies to run.
 
-## Testing live version
-In order to view the last deployed version ![CICD](https://github.com/ReneBrauwers/TechTestApp/workflows/CICD/badge.svg) please go to the last releases pages which
-should contain a link to the running application. 
+## Test Drive (live) version
+In order to view the last deployed version [![Build Status][git-cicd-badge]][gitworkflow] visist the releases page [![Release][release-badge]][release]. 
+
+Please do note that the application might have been removed since the last Release in order to reduce costs and just keep the used GC subscription clean.
 
 ## Installation
+
+### Local using source
+Please refer to the [original installation documentation](https://github.com/servian/TechTestApp/blob/master/doc/readme.md) from Servian
 
 ### Local using binary
 Please refer to the original git repo from servian. The binary can be downloaded from the [release folder](https://github.com/servian/TechTestApp/releases)
 
-### Docker Container
+### Local (or in a VM) using Docker Container
 
-1. Ensure you have installed 
-2. unzip into desired location
-3. and you should be good to go
+1. Ensure you have installed either 
+    1) [Docker Desktop on Windows](https://docs.docker.com/docker-for-windows/install/) 
+    2) [Docker Desktop on Mac](https://docs.docker.com/docker-for-mac/install/)
+    3) [Docker engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/) and [Docker compose](https://docs.docker.com/compose/install/)
+2. Clone this Repo and unzip (if necessary)
+3. Open entrypoint.sh and comment the last line and uncomment line 3 (adding a wait of 10 sec, before continuing allowing postgres to be ready)
+![entrypointmodifications](images/animated-entrypoint-modifications.gif)
+4. Open docker-compose.yaml and update line 23 context and line 25
+![dockercomposemodifications](images/animated-dockercompose-modifications.gif)
+5. Open a terminal and browse to the directory containing the docker-compose.yaml file.
+6. Enter the following command: docker-compose up 
+7. Wait a bit and then you're ready to go, use
+   1) Go to http://localhost:8080 to manage your local postgres instance (server: postgresdb, user/pass postgres) 
+   2) Go to http://localhost:81 to view the TechTestApp in action. 
 
-## Database setup
+### Cloud Deployment
+If you are intending to deploy into Google Cloud, please ensure you complete the steps mentioned in the next sections; if you are intending to deploy the solution into
+a different cloud such as Azure or AWS then please note that you will need to modify the workflow contained in the.github directory in order to replace the google specific 
+services (Google Cloud SQL and Google Cloud Run)
 
-This application is backed by a postgres db. Use the `updatedb` command to create the database, tables, and seed with test data
+Note; the solution has been tested against PostgreSQL version 9.6 and 10.7, but it is expected to work with older versions as well.
 
-### Supported versions
+### Google Cloud
+#### Create a new project
+* [Create a new Google Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
 
-Tested against:
+#### API Registrations
+Ensure the following Google Admin APIs have been enabled (in the project you are intending to use)
+* [Cloud SQL API](https://console.cloud.google.com/flows/enableapi?apiid=sqladmin&redirect=https://console.cloud.google.com)
+* [CLoud RUN API (Fully Managed)](http://console.cloud.google.com/apis/library/run.googleapis.com)
+* [Serverless VPC Access API ](https://console.cloud.google.com/marketplace/details/google/vpcaccess.googleapis.com)
+* [Container Registry AP](https://console.cloud.google.com/flows/enableapi?apiid=containerregistry.googleapis.com&redirect=https://cloud.google.com/container-registry/docs/quickstart)
 
-* PostgreSQL 9.6
-* PostgreSQL 10.7
+#### Create a Service Account
 
-## Start server
+Using Google Cloud Console or the CLI create a [service account](https://www.google.com.au/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwi__KadgJ3qAhXExjgGHdiNBpAQFjAAegQIAhAB&url=https%3A%2F%2Fcloud.google.com%2Fiam%2Fdocs%2Fcreating-managing-service-accounts&usg=AOvVaw0g7W6sYGlfhjgvUJqJmcAm) which for demo purposes is a member of the following groups:
+* Cloud Build Service Account
+* Cloud Build Editor
+* Service Account User
+* Cloud Run Admin
+* Viewer
+* Serverless VPC Access Admin
 
-update `conf.toml` with database settings (details on how to configure the application can be found in [config.md](config.md))
+Once you have created the service account and assigned the rights; please create a [JSON service account key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) and note it down)
 
-`TechTestApp updatedb` to create a database, tables, and seed it with test data. Use `-s` to skip creating the database and only create tabls and seed data.
+for real-life scenario's it is recommended to apply the [least privilege access principle](https://en.wikipedia.org/wiki/Principle_of_least_privilege) 
 
-`TechTestApp serve` will start serving requests
+#### Provisioning all required Google Services
+In order for the solution to work the following services need to be manually provisioned. See links below explaining how to do this.
 
-## Interesting endpoints
+!IMPORTANT! Please deploy all services in the same region; this repo leverages asia-northeast1
+* [Cloud SQL for PostgreSQL: Create a new instance](https://cloud.google.com/sql/docs/postgres/create-instance) (note; please configure using a private IP)
+* [Cloud Run (fully managed): Create a new instance](https://cloud.google.com/run/docs/setup)  
+* [Container Registry: Create a new instance](https://cloud.google.com/container-registry/docs/quickstart) 
 
-`/` - root endpoint that will load the SPA
+Note; it is the intention to automate these steps as well in a later phase.
 
-`/api/tasks/` - api endpoint to create, read, update, and delete tasks
 
-`/healthcheck/` - Used to validate the health of the application
 
-## Repository structure
+## Continuous Integration and Deployment
+[![Build Status][git-cicd-badge]][gitworkflow]
+[![Release][release-badge]][release]
+
+This repo has been designed and setup in such a way that it will build and deploy into Google Cloud for every commit pushed into the master branch. The whole CICD 
+cycle has been defined using Github actions; the riginal Servian application leverages circleci for this. Once a new version has been deployed the CICD process
+creates a new release which contains the link to the active online running application. 
+
+[Click to view the Github action used for CICD](../.github/workflows/deploy_to_cloud_run.yaml) 
+[Click to read how to configure the secrets for GitHub Actions](git-action-config.md)
+
+
+
+## MISC
+THis section details some other noteworthy  aspects of the TechTestApp. So please do read on...
+
+### Repository structure
 
 ``` sh
 .
@@ -90,67 +138,37 @@ update `conf.toml` with database settings (details on how to configure the appli
 └── ui          # Web UI, routing, connectivity
 ```
 
-## Application Architecture
+
+
+### GitHub Workflow Secrets
+[gitaction-config.md](git-action-config.md) - how to configure git actions (secrets used for deployment and service tasks)
+
+
+
+### Application Architecture
 
 ![architecture](images/architecture.png)
 
 The application itself is a React based single page application (SPA) with an API backend and a postgres database used for data persistence. It's been designed to be completely stateless and will deploy into most types of environments, be it container based or VM based.
 
-## Build from source
 
-### Reqirements
 
-#### Golang
+### TechTestApp commands and configuration
+Note for cloud deployment and container deployment one will need not to worry about the following nor make any changes!
 
-Application is build using golang, this can be installed in many ways, go to [golang](https://golang.org/) to download the version that suits you.
+update `conf.toml` with database settings (details on how to configure the application can be found in [config.md](config.md))
 
-#### dep
+`TechTestApp updatedb` to create a database, tables, and seed it with test data. Use `-s` to skip creating the database and only create tabls and seed data.
 
-dep is used for dependency management in golang, please download and install dep from the [official source](https://github.com/golang/dep).
+`TechTestApp serve` will start serving requests
 
-Linux / MacOS: `curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh`
+### TestTestApp Interesting endpoints
 
-#### Docker
+`/` - root endpoint that will load the SPA
 
-If building using docker you need to have docker installed on your local machine. Download from the [docker website](https://www.docker.com/get-started)
+`/api/tasks/` - api endpoint to create, read, update, and delete tasks
 
-### Compiling the application locally
+`/healthcheck/` - Used to validate the health of the application
 
-Download the application using go get:
 
-`go get -d github.com/servian/TechTestApp`
 
-run `build.sh` to download all the dependencies and compile the application
-
-the `dist` folder contains the compiled web package
-
-### Docker build using docker
-
-To build a docker image with the application installed on it
-
-`docker build . -t techtestapp:latest`
-
-## Continuous Integration
-
-Continuous integration is managed through circleci and the build on the master branch will create a new release when a new version is defined.
-
-## Creating a new release
-
-Releases are deployed and managed through github, it's an automated process that is executed through the CI solution
-
-To create a new release, update `../cmd/root.go` with the new version and merge that into the master branch.
-
-The commit message on the merge, will be the release message, so make sure it contains the release notes.
-
-A tag will be created on the master branch if the build and release is successful.
-
-We use semver for versioning, `major.minor.patch[-pre-release]` and the CI solution has been configured to take note of the `-pre-release` tag of the version and upload it as a pre-release in git if it's included. So to release a new full release, make sure to not include `-pre-release` and vice versa.
-
-Builds will be produced for:
-
-* MacOS (amd64)
-* Linux (x86/amd64)
-* Windows (x86/amd64)
-
-#### Note
-* If you are setting up the database using RDS, do not run the `./TechTestApp updatedb` command. Instead run `./TechTestApp updatedb -s` 
