@@ -103,3 +103,26 @@ jobs:
           --platform managed \
           --region "$RUN_REGION" \
           --quiet
+           
+    # Get Cloud Uri
+    - name: Set_Cloud_Run_Url
+      id: set_cloud_run_url
+      run: |-
+         echo "::set-env name=cloudrunlink:: $(gcloud run services describe $SOLUTION_NAME \
+          --platform managed \
+          --region "$RUN_REGION" \
+          --format 'value(status.url)')"
+
+    # Create Release
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: 1.0.${{github.run_number}}
+        release_name: Release 1.0.${{github.run_number}}
+        body: |
+          Latest live version has been released and can be found by clicking on the follwing [link](${{ env.cloudrunlink }})
+        draft: false
+        prerelease: false
